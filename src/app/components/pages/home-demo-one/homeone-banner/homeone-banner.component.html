@@ -2,39 +2,40 @@
 <div class="main-banner-area">
     <div class="container">
         <div class="main-banner-content">
-            <h1>Header</h1>
-            <p>Paragraph</p>
-            <form>
+            <form #f="ngForm" (ngSubmit)="onSearch(f.value)">
                 <div class="row m-0 align-items-center">
-                    <div class="col-lg-4 col-md-12 p-0">
+                    <div class="col-lg-3 col-md-6 p-0">
                         <div class="form-group">
-                            <label><i class="flaticon-search"></i></label>
-                            <input type="text" class="form-control" placeholder="What are you looking for?">
+                            <label><i class="flaticon-pin"></i></label>
+                            <ngx-select-dropdown (change)="selectionChanged1($event)" tabindex="0" [multiple]="false"
+                                [(ngModel)]="villeD" name="villeD" [config]="config1" [options]="options" required></ngx-select-dropdown>
                         </div>
                     </div>
 
                     <div class="col-lg-3 col-md-6 p-0">
                         <div class="form-group">
                             <label><i class="flaticon-pin"></i></label>
-                            <input type="text" class="form-control" placeholder="Location">
+                            <ngx-select-dropdown (change)="selectionChanged2($event)" tabindex="0" [multiple]="false"
+                                [(ngModel)]="villeA" name="villeA" [config]="config" [options]="options" required></ngx-select-dropdown>
                         </div>
                     </div>
 
-                    <div class="col-lg-3 col-md-6 p-0">
+                    <div class="col-lg-3 col-md-12 p-0">
                         <div class="form-group category-select">
-                            <label><i class="flaticon-category"></i></label>
-                            <ngx-select-dropdown (searchChange)="searchChange($event)" name="category-select" tabindex="0" [multiple]="false" [(ngModel)]="singleSelect" [config]="config" ></ngx-select-dropdown>
+                            <label style="margin-top: -18px;"><i class="flaticon-calendar"></i></label>
+                            <input type="date" name="" id="" dynamic-date-input placeholder="Date de voyage"
+                                class=" opacity-50 border-0" [(ngModel)]="Dt" (change)="selectionChanged3($event)" required>
                         </div>
                     </div>
 
-                    <div class="col-lg-2 col-md-12 p-0">
+                    <div class="col-lg-3 col-md-12 p-0">
                         <div class="submit-btn">
-                            <button type="submit">Search Now</button>
+                            <button type="submit">Chercher</button>
                         </div>
                     </div>
                 </div>
             </form>
-           
+
         </div>
     </div>
 </div>

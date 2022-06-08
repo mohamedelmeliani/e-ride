@@ -23,9 +23,9 @@
                             name="code" required autocomplete="off">
                         <span class="label-title"><i class='bx bxs-key'></i></span>
                     </div>
-                    <button type="button" *ngIf="!showCode" class="default-btn" (click)="emailSent()">Send Confirmation
+                    <button type="submit" *ngIf="!showCode" class="default-btn" (click)="emailSent()">Send Confirmation
                         Email</button>
-                    <button type="submit" *ngIf="showCode" class="default-btn">Verifier Code</button>
+                    <button type="submit" *ngIf="showCode" class="default-btn" (click)="verifyCode()">Verifier Code</button>
                     <p>Si vous n'avez pas reçu d'e-mail, vérifiez l'adresse e-mail et cliquez sur <a
                             (click)="emailSent()">Renvoyer</a> </p>
                 </form>

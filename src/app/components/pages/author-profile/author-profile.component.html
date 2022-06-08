@@ -1,91 +1,114 @@
-<app-navbar-style-one></app-navbar-style-one>
+<app-navbar-style-one *ngIf="service.isAuthenticated==false"></app-navbar-style-one>
+<app-dashboard-sidemenu *ngIf="service.isAuthenticated==true"></app-dashboard-sidemenu>
 
+<style>
+    .top_content{
+        margin-top: 90px;
+    }
+</style>
 <!-- Start Author Area -->
-<section class="author-area ptb-100">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-4 col-md-12">
-                <div class="author-sidebar">
-                    <div class="user-profile">
-                        <div class="d-flex align-items-center">
-                            <img src="assets/img/user3.jpg" alt="image">
-
-                            <div class="title">
-                                <h4>James Andy</h4>
-                                <p>since august 2021</p>
+<div [ngClass]="service.isAuthenticated==true?'main-content d-flex flex-column':''">
+    <app-dashboard-navbar *ngIf="service.isAuthenticated==true"></app-dashboard-navbar>
+    <app-loading *ngIf="showSpinner"></app-loading>
+    <section *ngIf="!showSpinner" [ngClass]="service.isAuthenticated==true?'author-area ptb-10':'author-area ptb-100 top_content'">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-12">
+                    <div class="author-sidebar">
+                        <div class="user-profile">
+                            <div class="d-flex align-items-center">
+                                <img src="assets/img/user1.jpg" alt="image" *ngIf="!user.photoProfile">
+                                <img src="{{service.host}}/download/{{user.photoProfile.id}}" alt="image"
+                                    *ngIf="user.photoProfile">
+                                <div class="title">
+                                    <h4>{{user.nom}}</h4>
+                                    <p>Membre depuis : {{user.dateCmpt | date:'MM/YYYY'}}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="user-contact-info">
-                        <h3>Contact</h3>
+                        <div class="user-contact-info" *ngIf="service.isAuthenticated==true">
+                            <h3>Contact</h3>
 
-                        <ul class="user-contact">
-                            <li><a href="#"><i class='bx bx-phone-call'></i> (+44) - 45789 - 5789</a></li>
-                            <li><a href="#"><i class='bx bx-envelope'></i> hello@jamesandy.com</a></li>
-                        </ul>
+                            <ul class="user-contact">
+                                <li><a href="tel:{{user.tel}}"><i class='bx bx-phone-call'></i> {{user.tel}}</a></li>
+                                <li><a href="mailto:{{user.email}}"><i class='bx bx-envelope'></i>{{user.email}}</a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-lg-8 col-md-12">
-                <div class="author-all-listings">
-                    <h2>James's Listings</h2>
+                <div class="col-lg-8 col-md-12">
+                    <div class="author-all-listings">
+                        <p>Nous avons trouvé <span style="font-weight: bold;">{{trajets?.length}}</span> trajets</p>
 
-                    <div class="row">
-                        <div class="col-xl-6 col-lg-6 col-md-6" *ngFor="let Content of singleListingsBox | paginate: { itemsPerPage: 4, currentPage: blogGrid }">
-                            <div class="single-listings-box">
-                                <div class="listings-image">
-                                    <div class="listings-image-slides">
-                                        <owl-carousel-o [options]="customOptions">
-                                            <ng-template carouselSlide *ngFor="let Image of Content.mainImg;">
-                                                <div class="single-image">
-                                                    <img [src]="Image.img" alt="image">
-                                                    <a routerLink="/{{Content.detailsLink}}" class="link-btn"></a>
-                                                </div>
-                                            </ng-template>
-                                        </owl-carousel-o>
-                                    </div>
-                                    <a routerLink="/{{Content.bookmarkLink}}" class="bookmark-save"><i class="flaticon-heart"></i></a>
-                                    <a routerLink="/{{Content.categoryLink}}" class="category"><i class="flaticon-cooking"></i></a>
-                                </div>
-                                <div class="listings-content">
-                                    <div class="author">
-                                        <div class="d-flex align-items-center">
-                                            <img [src]="Content.authorImg" alt="image">
-                                            <span>{{Content.authorName}}</span>
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6"
+                                *ngFor="let trajet of trajets | paginate: { itemsPerPage: 4, currentPage: blogGrid }">
+                                <div class="single-listings-box">
+                                    <div class="listings-image">
+                                        <div *ngIf="trajet.highway">
+                                            <div>
+                                                <iframe class="map" width="100%" height="400" frameborder="0"
+                                                    scrolling="yes" marginheight="0" marginwidth="0"
+                                                    [src]="sanitizer.bypassSecurityTrustResourceUrl('https://www.google.com/maps/embed/v1/directions?key=AIzaSyDC4Qo-Gwicfmb2-LBk-jYdbTp5NnATEuY&origin='+trajet.villeD+'&destination='+trajet.villeA)"
+                                                    webkitallowfullscreen mozallowfullscreen allowfullscreen>
+                                                </iframe>
+                                            </div>
+                                        </div>
+                                        <div *ngIf="!trajet.highway">
+                                            <div>
+                                                <iframe class="map" width="100%" height="400" frameborder="0"
+                                                    scrolling="yes" marginheight="0" marginwidth="0"
+                                                    [src]="sanitizer.bypassSecurityTrustResourceUrl('https://www.google.com/maps/embed/v1/directions?key=AIzaSyDC4Qo-Gwicfmb2-LBk-jYdbTp5NnATEuY&origin='+trajet.villeD+'&destination='+trajet.villeA+'&avoid=highways')"
+                                                    webkitallowfullscreen mozallowfullscreen allowfullscreen>
+                                                </iframe>
+                                            </div>
                                         </div>
                                     </div>
-                                    <ul class="listings-meta">
-                                        <li><a routerLink="/{{Content.categoryLink}}"><i class="flaticon-furniture-and-household"></i> Restaurant</a></li>
-                                        <li><i class="flaticon-pin"></i> {{Content.location}}</li>
-                                    </ul>
-                                    <h3><a routerLink="/{{Content.detailsLink}}">{{Content.title}}</a></h3>
-                                    <span class="status {{Content.extraClass}}"><i class="flaticon-save"></i> {{Content.openORclose}}</span>
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <div class="rating">
-                                            <i class='{{Star.icon}}' *ngFor="let Star of Content.rating;"></i>
-                                            <span class="count">({{Content.ratingCount}})</span>
+                                    <div class="listings-content">
+                                        <h3><a [routerLink]="['/trajet',trajet.id]"
+                                                routerLinkActive="router-link-active"><i class="flaticon-pin"
+                                                    style="color:#0ec6c6; font-size: 17px;"></i>{{trajet.villeD}} <i
+                                                    class="flaticon-right-arrow s2" style="color:#0ec6c6;"></i><i
+                                                    class="flaticon-pin"
+                                                    style="color:#0ec6c6;font-size: 17px;"></i>{{trajet.villeA}}</a>
+                                        </h3>
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <span class="status Open Now">
+                                                    <i class="bx bx-calendar" style="font-size: 17px;"></i>
+                                                    {{trajet.date | date:'dd/MM/YYYY'}} <i class="flaticon-clock" style="font-size: 17px;"></i> {{trajet.heure}}</span>
+                                            </div>
+                                            <div class="price" *ngIf="trajet.highway">
+                                                Autoroute
+                                            </div>
                                         </div>
-                                        <div class="price">
-                                            {{Content.price}}
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <span class="count"><i class='bx bx-group'></i>{{trajet.nbrePlace}} Places</span>
+                                            </div>
+                                            <div class="price">
+                                                <i class='bx bx-purchase-tag'></i>Prix : {{trajet.prix}} MAD
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="col-xl-12 col-lg-12 col-md-12">
-                            <div class="pagination-area text-center">
-                                <pagination-controls (pageChange)="blogGrid = $event"></pagination-controls>
+                            <div class="col-xl-12 col-lg-12 col-md-12" *ngIf="trajets.length>0">
+                                <div class="pagination-area text-center">
+                                    <pagination-controls (pageChange)="blogGrid = $event"></pagination-controls>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+</div>
 <!-- End Author Area -->
 
-<app-footer-style-one></app-footer-style-one>
+<app-footer-style-two></app-footer-style-two>

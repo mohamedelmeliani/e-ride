@@ -12,8 +12,8 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) { }
 
-  // public host = "https://easy-ride-dev.herokuapp.com";
-  public host = "http://localhost:8080";
+  public host = "https://easy-ride-dev.herokuapp.com";
+  // public host = "http://localhost:8080";
   public isAuthenticated: boolean;
   public tokens: any;
   public access_token: string;

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from 'src/app/services/auth-service.service';
 
 @Component({
     selector: 'app-dashboard-bookings',
@@ -7,157 +8,67 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DashboardBookingsComponent implements OnInit {
 
-    constructor() { }
+    assistes:any=[];
+    trajets:any=[];
+    trajet:any=[];
+    showSpinner=true;
+
+    constructor(public service:AuthService) { }
 
     ngOnInit(): void {
+        this.showSpinner=true;
+        this.service.get("/user/getHistory").subscribe(
+            data=>{
+                this.assistes=data;
+                this.assistes.forEach(assiste => {
+                    this.service.get("/all/findtrajet/"+assiste.key.trajetId).subscribe(
+                        res=>{
+                            this.trajet=res;
+                            this.trajet.infos= [
+                                {
+                                    icon: 'bx bx-map',
+                                    title: 'Ville Depart',
+                                    text: this.trajet.villeD,
+                                },
+                                {
+                                    icon: 'bx bx-map',
+                                    title: 'Ville Arrivée',
+                                    text: this.trajet.villeA,
+                                },
+                                {
+                                    icon: 'bx bx-calendar',
+                                    title: 'Date',
+                                    text: this.trajet.date,
+                                },
+                                {
+                                    icon: 'flaticon-clock',
+                                    title: 'Heure',
+                                    text: this.trajet.heure,
+                                },
+                                {
+                                    icon: 'bx bx-group',
+                                    title: 'Places',
+                                    text: this.trajet.nbrePlace,
+                                },
+                                {
+                                    icon: 'bx bx-purchase-tag',
+                                    title: 'Prix',
+                                    text: this.trajet.prix,
+                                }
+                            ]
+                            this.trajet.status=assiste.status;
+                            this.trajets.push(this.trajet);
+                        }
+                    )
+                });
+                this.showSpinner=false;
+            }
+        )
     }
 
     breadcrumb = [
         {
-            title: 'Bookings',
-            subTitle: 'Dashboard'
-        }
-    ]
-
-    bookingsListingsBox = [
-        {
-            customerImg: 'assets/img/user1.jpg',
-            customerName: 'James Anderson',
-            customerNumber: '+214 4455 6521',
-            customerEmail: 'hello@james.com',
-            title: 'Farmis Hotel & Restaurant',
-            bookingsStatus: 'Pending',
-            pendingApprovedCanceled: 'pending',
-            bookingsInfo: [
-                {
-                    icon: 'bx bx-map',
-                    title: 'Address',
-                    text: '40 Journal Square, NG USA',
-                },
-                {
-                    icon: 'bx bx-calendar',
-                    title: 'Date',
-                    text: '20/05/2020',
-                },
-                {
-                    icon: 'bx bx-purchase-tag',
-                    title: 'Price',
-                    text: '$1500',
-                },
-                {
-                    icon: 'bx bx-group',
-                    title: 'Persons',
-                    text: '4 Peoples',
-                },
-                {
-                    icon: 'bx bx-credit-card-front',
-                    title: 'Payment',
-                    text: 'Paid',
-                }
-            ]
-        },
-        {
-            customerImg: 'assets/img/user2.jpg',
-            customerName: 'Alina Smith',
-            customerNumber: '+214 4455 6521',
-            customerEmail: 'hello@alina.com',
-            title: 'Skyview Shopping Cente',
-            bookingsStatus: 'Approved',
-            pendingApprovedCanceled: 'approved',
-            bookingsInfo: [
-                {
-                    icon: 'bx bx-map',
-                    title: 'Address',
-                    text: '55 County Laois, Ireland',
-                },
-                {
-                    icon: 'bx bx-calendar',
-                    title: 'Date',
-                    text: '19/05/2020',
-                },
-                {
-                    icon: 'bx bx-purchase-tag',
-                    title: 'Price',
-                    text: '$200',
-                },
-                {
-                    icon: 'bx bx-credit-card-front',
-                    title: 'Payment',
-                    text: 'Paid',
-                }
-            ]
-        },
-        {
-            customerImg: 'assets/img/user3.jpg',
-            customerName: 'James Andy',
-            customerNumber: '+214 4455 6521',
-            customerEmail: 'hello@andy.com',
-            title: 'Gym Training Center',
-            bookingsStatus: 'Pending',
-            pendingApprovedCanceled: 'pending',
-            bookingsInfo: [
-                {
-                    icon: 'bx bx-map',
-                    title: 'Address',
-                    text: 'Tilt Tilbury, United Kingdom',
-                },
-                {
-                    icon: 'bx bx-calendar',
-                    title: 'Date',
-                    text: '18/05/2020',
-                },
-                {
-                    icon: 'bx bx-purchase-tag',
-                    title: 'Price',
-                    text: '$214',
-                },
-                {
-                    icon: 'bx bx-group',
-                    title: 'Persons',
-                    text: '2 Peoples',
-                },
-                {
-                    icon: 'bx bx-credit-card-front',
-                    title: 'Payment',
-                    text: 'Unpaid',
-                }
-            ]
-        },
-        {
-            customerImg: 'assets/img/user4.jpg',
-            customerName: 'Steven Smith',
-            customerNumber: '+214 4455 6521',
-            customerEmail: 'hello@steven.com',
-            title: 'The Magician Restaurant',
-            bookingsStatus: 'Canceled',
-            pendingApprovedCanceled: 'canceled',
-            bookingsInfo: [
-                {
-                    icon: 'bx bx-map',
-                    title: 'Address',
-                    text: '40 Journal Square, NG USA',
-                },
-                {
-                    icon: 'bx bx-calendar',
-                    title: 'Date',
-                    text: '20/05/2020',
-                },
-                {
-                    icon: 'bx bx-purchase-tag',
-                    title: 'Price',
-                    text: '$1500',
-                },
-                {
-                    icon: 'bx bx-group',
-                    title: 'Persons',
-                    text: '4 Peoples',
-                },
-                {
-                    icon: 'bx bx-credit-card-front',
-                    title: 'Payment',
-                    text: 'Unpaid',
-                }
-            ]
+            title: 'Historique',
         }
     ]
 

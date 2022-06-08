@@ -1,5 +1,9 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
 import { OwlOptions } from 'ngx-owl-carousel-o';
+import { AuthService } from 'src/app/services/auth-service.service';
 
 @Component({
     selector: 'app-author-profile',
@@ -9,10 +13,33 @@ import { OwlOptions } from 'ngx-owl-carousel-o';
 export class AuthorProfileComponent implements OnInit {
 
     blogGrid: number = 1;
+    trajets: any=[];
+    user:any=[];
 
-    constructor() { }
+    constructor(private active: ActivatedRoute,
+        public sanitizer: DomSanitizer,
+        public service: AuthService,
+        private http: HttpClient,
+        private router: Router) { }
+
+        public id: string = this.active.snapshot.params['id'];
+        showSpinner=true;
 
     ngOnInit(): void {
+        this.id=this.active.snapshot.params['id'];
+        this.http.get(this.service.host+"/all/getUserById/"+this.id).subscribe(
+            res=>{
+                this.user=res;
+                this.http.get(this.service.host+"/all/trajetsById/"+this.id).subscribe(
+                    res=>{
+                        this.trajets=res;
+                        this.showSpinner=false;
+                    }
+                )
+            },err=>{
+                this.router.navigateByUrl("/user_not_found");
+            }
+        )
     }
 
     pageTitleContent = [
@@ -247,15 +274,15 @@ export class AuthorProfileComponent implements OnInit {
     ]
 
     customOptions: OwlOptions = {
-		loop: true,
-		nav: true,
-		dots: false,
-		animateOut: 'fadeOut',
-		animateIn: 'fadeIn',
-		autoplayHoverPause: true,
-		autoplay: true,
-		mouseDrag: false,
-		items: 1,
+        loop: true,
+        nav: true,
+        dots: false,
+        animateOut: 'fadeOut',
+        animateIn: 'fadeIn',
+        autoplayHoverPause: true,
+        autoplay: true,
+        mouseDrag: false,
+        items: 1,
         navText: [
             "<i class='flaticon-left-chevron'></i>",
             "<i class='flaticon-right-chevron'></i>"

@@ -30,24 +30,24 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let Content of bookingsListingsBox;">
+                    <tr *ngFor="let trajet of trajets;">
                         <td class="name">
-                            <img [src]="Content.customerImg" alt="image">
+                            <img src="assets/img/user1.jpg" alt="image" *ngIf="!trajet.car.owner.photoProfile">
+                            <img src="{{service.host}}/download/{{trajet.car.owner.photoProfile.id}}"
+                                alt="image" *ngIf="trajet.car.owner.photoProfile">
                             <div class="info">
-                                <span>{{Content.customerName}}</span>
+                                <span>{{trajet.car.owner.nom}}</span>
                                 <ul>
-                                    <li><a href="tel:{{Content.customerNumber}}">{{Content.customerNumber}}</a></li>
-                                    <li><a href="mailto:{{Content.customerEmail}}">{{Content.customerEmail}}</a></li>
+                                    <li><a href="tel:{{trajet.car.owner.tel}}">{{trajet.car.owner.tel}}</a></li>
+                                    <li><a href="mailto:{{trajet.car.owner.email}}">{{trajet.car.owner.email}}</a></li>
                                 </ul>
-                                <a href="mailto:{{Content.customerEmail}}" class="default-btn"><i class='bx bx-envelope'></i> Send Message</a>
+                                <a href="mailto:{{trajet.car.owner.email}}" class="default-btn"><i class='bx bx-envelope'></i> Envoyer Message</a>
                             </div>
                         </td>
 
                         <td class="details">
-                            <h4>{{Content.title}} <span class="bookings-status {{Content.pendingApprovedCanceled}}">{{Content.bookingsStatus}}</span></h4>
-
                             <ul>
-                                <li *ngFor="let Info of Content.bookingsInfo">
+                                <li *ngFor="let Info of trajet.infos">
                                     <i class='{{Info.icon}}'></i> 
                                     <span>{{Info.title}}:</span>
                                     {{Info.text}}
@@ -56,8 +56,7 @@
                         </td>
 
                         <td class="action">
-                            <a href="#" class="default-btn"><i class='bx bx-check-circle'></i> Approve</a>
-                            <a href="#" class="default-btn danger"><i class='bx bx-x-circle'></i> Reject</a>
+                            <a class="default-btn"><i class='bx bx-check-circle'></i> {{trajet.status}}</a>
                         </td>
                     </tr>
                 </tbody>
@@ -68,7 +67,6 @@
 
     <div class="flex-grow-1"></div>
     
-    <app-copyrights></app-copyrights>
-
+    <app-footer-style-two></app-footer-style-two>
 </div>
 <!-- End Main Content Wrapper Area -->

@@ -31,6 +31,11 @@ export class DashboardMyProfileComponent implements OnInit {
     isProfile = false;
     successModify = false;
 
+    showError=false;
+    errorText="";
+    showSuccess=false;
+    successText="";
+
     confiramtion = 0;
 
     oldpass = "";
@@ -122,12 +127,17 @@ export class DashboardMyProfileComponent implements OnInit {
 
 
     getCar(mat: any) {
+        this.showError=false;
+        this.showSuccess=false;
+        this.showCarSpinner = true;
         this.authservice.get("/user/findCar/" + mat).subscribe(data => { this.car = data; this.showCarSpinner = false; this.isNewCar = false; });
     }
 
     modifyCar(mat: any) {
         const values = Object.keys(this.car).map(key => this.car[key]);
         this.showAlert = false;
+        this.showError=false;
+        this.showSuccess=false;
         values.forEach(element => {
             if (element === "") {
                 this.showAlert = true;
@@ -139,7 +149,14 @@ export class DashboardMyProfileComponent implements OnInit {
             this.authservice.put("/user/modifyCarOfLoggedUser/" + mat, this.car).subscribe(data => {
                 document.getElementById('close').click();
                 this.showCarsSpinner = true;
+                this.getCar(mat);
+                this.showSuccess=true;
+                this.successText="Bien modifié";
                 this.ngOnInit();
+            },err=>{
+                this.showError=true;
+                this.errorText="Error est produits lors de modification de voiture";
+                this.showCarSpinner = false
             });
         }
     }
@@ -148,7 +165,7 @@ export class DashboardMyProfileComponent implements OnInit {
 
     deleteCar(mat: any) {
         this.authservice.delete("/user/deleteCarOfLoggedUser/" + mat).subscribe(data => {
-            document.getElementById('close').click();
+            document.getElementById("close").click();
             this.showCarsSpinner = true;
             this.ngOnInit();
         });
@@ -158,11 +175,15 @@ export class DashboardMyProfileComponent implements OnInit {
         this.car = new car();
         this.isNewCar = true;
         this.showCarSpinner = false;
+        this.showError=false;
+        this.showSuccess=false;
     }
 
     addCar() {
         this.showCarSpinner = true;
         const values = Object.keys(this.car).map(key => this.car[key]);
+        this.showError=false;
+        this.showSuccess=false;
         this.showAlert = false;
         values.forEach(element => {
             if (element === "") {
@@ -171,9 +192,16 @@ export class DashboardMyProfileComponent implements OnInit {
         });
         if (this.showAlert == false) {
             this.authservice.post("/user/addCarToLoggedUser", this.car).subscribe(data => {
+                this.getCar(this.car.mat);
                 document.getElementById('close').click();
                 this.showCarsSpinner = true;
+                this.showSuccess=true;
+                this.successText="Bien Ajouté";
                 this.ngOnInit();
+            },err=>{
+                this.showError=true;
+                this.errorText="Error est produit lors de l'ajout de voiture";
+                this.showCarSpinner = false
             });
         }
     }

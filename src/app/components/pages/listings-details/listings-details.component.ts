@@ -1,5 +1,9 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { OwlOptions } from 'ngx-owl-carousel-o';
+import { DomSanitizer } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from 'src/app/services/auth-service.service';
+import { trajet } from 'src/assets/classes/trajet';
 
 @Component({
     selector: 'app-listings-details',
@@ -8,147 +12,103 @@ import { OwlOptions } from 'ngx-owl-carousel-o';
 })
 export class ListingsDetailsComponent implements OnInit {
 
-    constructor() { }
-
+    constructor(private active: ActivatedRoute,
+        public sanitizer: DomSanitizer,
+        public service: AuthService,
+        private http: HttpClient,
+        private router: Router) { }
+    public id: string = this.active.snapshot.params['id'];
+    public trajet: any = new trajet();
+    showParticipate = false;
+    showItsYou = false;
+    showAlreadyIn = false;
+    showSpinner = true;
+    state = "";
+    user: any = [];
+    showApproved = false;
+    showDenied = false;
+    public profile: any;
+    public assistes: any = [];
+    public acceptedRequests=0;
+    public requestsDone=false;
+    public users: any = [];
     ngOnInit(): void {
+        this.showSpinner = true;
+        this.acceptedRequests=0;
+        this.users = [];
+        this.id = this.active.snapshot.params['id'];
+        this.http.get(this.service.host + "/all/findtrajet/" + this.id).subscribe(
+            res => {
+                this.trajet = res;
+                if (this.service.isAuthenticated) {
+                    this.service.get("/user/profile").subscribe(data => {
+                        this.profile = data;
+                        this.assistes = this.trajet.assistes;
+                        this.assistes.forEach(assiste => {
+                            this.http.get(this.service.host + "/all/getUserById/" + assiste.key.userId).subscribe(
+                                res => {
+                                    this.user = res;
+                                    this.user.showDenied = false;
+                                    this.user.showApproved = false;
+                                    this.user.requestsDone=false;
+                                    if (this.user["id"] == this.profile.id) {
+                                        this.showAlreadyIn = true;
+                                        this.showParticipate = false;
+                                        this.state = assiste.status;
+                                    }
+                                    if(this.acceptedRequests<this.trajet.nbrePlace){
+                                        if (assiste.status==="Votre demande a été acceptée") {
+                                            this.acceptedRequests++;
+                                            this.user.showApproved = true;
+                                            this.user.showDenied = false;
+                                        } else if  (assiste.status==="Votre demande a été refusée"){
+                                            this.user.showApproved = false;
+                                            this.user.showDenied = true;
+                                        } 
+                                    }else{
+                                        this.user.requestsDone=true;
+                                    }
+                                    console.log("aproved : " + this.user.showDenied + " denied : " + this.user.showDenied);
+                                    console.log(this.user)
+                                    this.users.push(this.user);
+                                }
+                            )
+                        });
+                        if (this.profile.id == this.trajet.car.owner.id) {
+                            this.showItsYou = true;
+                            this.showParticipate = false;
+                        } else {
+                            this.showItsYou = false;
+                            this.showParticipate = true;
+                        }
+                        this.showSpinner = false;
+                    });
+                } else {
+                    this.showItsYou = false;
+                    this.showParticipate = false;
+                    this.showSpinner = false;
+                }
+            }, err => {
+                this.router.navigateByUrl("/trajet_not_found");
+            }
+        )
     }
 
-    singleListingsBox = [
-        {
-            mainImg: [
-                {
-                    img: 'assets/img/listings/listings7.jpg'
-                }
-            ],
-            categoryLink: 'single-listings',
-            category: 'Restaurant',
-            bookmarkLink: 'single-listings',
-            location: 'Francisco, USA',
-            title: 'The Mad Made Grill',
-            price: 'Start From: $121',
-            detailsLink: 'single-listings',
-            authorImg: 'assets/img/user1.jpg',
-            openORclose: 'Open Now',
-            extraClass: 'status-open',
-            authorName: 'James',
-            rating: [
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                }
-            ],
-            ratingCount: '18'
-        },
-        {
-            mainImg: [
-                {
-                    img: 'assets/img/listings/listings4.jpg'
-                },
-                {
-                    img: 'assets/img/listings/listings2.jpg'
-                }
-            ],
-            categoryLink: 'single-listings',
-            category: 'Hotel',
-            bookmarkLink: 'single-listings',
-            location: 'Los Angeles, USA',
-            title: 'The Beverly Hills Hotel',
-            price: 'Start From: $200',
-            detailsLink: 'single-listings',
-            authorImg: 'assets/img/user2.jpg',
-            openORclose: 'Open Now',
-            extraClass: 'status-open',
-            authorName: 'Sarah',
-            rating: [
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bx-star'
-                }
-            ],
-            ratingCount: '10'
-        }
-    ]
-
-    galleryOptions: OwlOptions = {
-		loop: true,
-		nav: true,
-		dots: false,
-		autoplayHoverPause: true,
-		autoplay: true,
-		margin: 30,
-        navText: [
-            "<i class='flaticon-left-chevron'></i>",
-            "<i class='flaticon-right-chevron'></i>"
-        ],
-		responsive: {
-			0: {
-				items: 1,
-			},
-			576: {
-				items: 2,
-			},
-			768: {
-				items: 2,
-			},
-			992: {
-				items: 2,
-			}
-		}
+    assisteRequest() {
+        this.service.post("/user/addAssiste", this.trajet).subscribe(
+            response => {
+                this.ngOnInit();
+            }
+        )
     }
-    singleImageBox = [
-        {
-            img: 'assets/img/gallery/gallery1.jpg'
-        },
-        {
-            img: 'assets/img/gallery/gallery2.jpg'
-        },
-        {
-            img: 'assets/img/gallery/gallery3.jpg'
-        },
-        {
-            img: 'assets/img/gallery/gallery4.jpg'
-        },
-        {
-            img: 'assets/img/gallery/gallery5.jpg'
-        }
-    ]
 
-    customOptions: OwlOptions = {
-		loop: true,
-		nav: true,
-		dots: false,
-		animateOut: 'fadeOut',
-		animateIn: 'fadeIn',
-		autoplayHoverPause: true,
-		autoplay: true,
-		mouseDrag: false,
-		items: 1,
-        navText: [
-            "<i class='flaticon-left-chevron'></i>",
-            "<i class='flaticon-right-chevron'></i>"
-        ]
+    modifyRequest(id: number, code: number) {
+        this.service.put("/user/modifyAssiste/" + id + "?code=" + code, this.trajet).subscribe(
+            response => {
+                this.ngOnInit();
+            }
+        )
     }
+
 
 }

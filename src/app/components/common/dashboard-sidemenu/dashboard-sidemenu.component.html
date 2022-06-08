@@ -16,19 +16,11 @@
                 Main
             </li>
             <li class="nav-item" routerLinkActive="active mm-active">
-                <a routerLink="/dashboard" class="nav-link">
+                <a routerLink="/recherche" class="nav-link">
                     <span class="icon"><i class="flaticon-search"></i></span>
                     <span class="menu-title">Recherche</span>
                 </a>
             </li>
-
-            <li class="nav-item" routerLinkActive="active mm-active">
-                <a routerLink="/dashboard-bookings" class="nav-link">
-                    <span class="icon"><i class='bx bx-copy'></i></span>
-                    <span class="menu-title">Demandes</span>
-                </a>
-            </li>
-            
             <li class="nav-item-title">
                 Trajets
             </li>
@@ -38,19 +30,24 @@
                     <span class="menu-title">Mes trajets</span>
                 </a>
             </li>
-                       
+
             <li class="nav-item" routerLinkActive="active mm-active">
-                <a routerLink="/dashboard-add-listings" class="nav-link">
+                <a (click)="initTrajet()" data-bs-toggle="modal" data-bs-target="#addTrajetModal" class="nav-link">
                     <span class="icon"><i class='bx bx-plus-circle'></i></span>
                     <span class="menu-title">Ajouter trajet</span>
                 </a>
+                <style>
+                    a:hover {
+                        cursor: pointer;
+                    }
+                </style>
             </li>
-           
+
             <li class="nav-item-title">
                 Compte
             </li>
             <li class="nav-item" routerLinkActive="active mm-active">
-                <a class="nav-link">
+                <a routerLink="/dashboard-bookings" class="nav-link">
                     <span class="icon"><i class='bx bx-calendar'></i></span>
                     <span class="menu-title">Historique</span>
                 </a>
@@ -62,7 +59,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a routerLink="/" class="nav-link">
+                <a (click)="service.Logout()" class="nav-link">
                     <span class="icon"><i class='bx bx-log-out'></i></span>
                     <span class="menu-title">Logout</span>
                 </a>
@@ -71,3 +68,92 @@
     </div>
 </div>
 <!-- End Sidemenu Area -->
+
+<div class="modal fade loginRegisterModal" id="addTrajetModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <app-loading *ngIf="showSpinner"></app-loading>
+            <div *ngIf="!showSpinner" class="tab-content" id="myTabContent" style="margin-top: 5px;">
+                <div class="alert alert-danger" *ngIf="showError">{{errorText}}</div>
+                <div class="alert alert-success" *ngIf="showSuccess">Bien Ajouté</div>
+                <div class="tab-pane fade show active" id="login" role="tabpanel">
+                    <button type="button" id="close" data-bs-dismiss="modal" aria-label="Close" class="close"><i
+                            class='bx bx-x'></i></button>
+                    <div class="vesax-login">
+                        <form #f="ngForm" ngNativeValidate (ngSubmit)="onSearch(f.value)">
+                            <div class="form-group">
+                                <label>Ville Depart :</label>
+                                <ngx-select-dropdown (change)="selectionChanged1($event)" tabindex="0"
+                                    [multiple]="false" [(ngModel)]="trajet.villeD" name="villeD" [config]="config1"
+                                    [options]="options" required></ngx-select-dropdown>
+                            </div>
+                            <div *ngIf="trajet.villeD!=''">
+                                <div class="form-group">
+                                    <label>Ville Arrive :</label>
+                                    <ngx-select-dropdown (change)="selectionChanged2($event)" tabindex="0"
+                                        [multiple]="false" [(ngModel)]="trajet.villeA" name="villeA" [config]="config"
+                                        [options]="options" required></ngx-select-dropdown>
+                                </div>
+                                <div *ngIf="trajet.villeA!=''">
+                                    <div class="form-group">
+                                        <label>Date :</label>
+                                        <input type="date" class="form-control" [(ngModel)]="trajet.date" name="date"
+                                            required>
+                                    </div>
+                                    <div *ngIf="trajet.date!=''">
+                                        <div class="form-group">
+                                            <label>Heure : </label>
+                                            <input type="time" class="form-control" [(ngModel)]="trajet.heure" name="heure"
+                                                required>
+                                        </div>
+                                        <div *ngIf="trajet.heure!=''">
+                                            <div class="form-group">
+                                                <label>Voiture : </label>
+                                                <ngx-select-dropdown tabindex="0" [multiple]="false" [(ngModel)]="trajet.car" name="car"
+                                                    [config]="config2" [options]="cars" (change)="selectionChanged3($event)" required>
+                                                </ngx-select-dropdown>
+                                            </div>
+                                            <div *ngIf="trajet.car">
+                                                <div class="form-group">
+                                                    <label>Places : </label>
+                                                    <input id="nbrePlace" type="number" min="1" class="form-control"
+                                                        [(ngModel)]="trajet.nbrePlace" name="nbrePlace" required (change)="getDistance()"
+                                                        *ngIf="trajet.car">
+                                                </div>
+                                                <div *ngIf="trajet.nbrePlace!=''||trajet.nbrePlace!='0'">
+                                                    <div class="form-group">
+                                                        <label>Prix par place : </label>
+                                                        <input id="prix" type="number" class="form-control" [(ngModel)]="trajet.prix"
+                                                            name="prix" min="0" required>
+                                                    </div>
+                                                    <div *ngIf="trajet.prix!=''||trajet.prix!='-1'">
+                                                        <div class="add-listings-box">
+                                                            <div class="form-group">
+                                                                <div class="sidebar-widgets">
+                                                                    <div class="box">
+                                                                        <span class="title">Allez-vous emprunter l'autoroute ?</span>
+                                                                        <label class="switch">
+                                                                            <input type="checkbox" [(ngModel)]="trajet.highway" name="highway">
+                                                                            <span></span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-success">Ajoute Trajet</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

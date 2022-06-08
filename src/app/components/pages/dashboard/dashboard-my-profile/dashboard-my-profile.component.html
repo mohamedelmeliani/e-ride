@@ -19,7 +19,8 @@
     <!-- Start -->
     <div class="row" *ngIf="!showSpinner">
         <div class="col-lg-6 col-md-12">
-            <div *ngIf="showModificaionAlert&&!error" class="alert alert-warning" role="alert">Certaines des informations
+            <div *ngIf="showModificaionAlert&&!error" class="alert alert-warning" role="alert">Certaines des
+                informations
                 saisies ne sont pas valides</div>
             <div *ngIf="error" class="alert alert-danger" role="alert">{{error}}</div>
             <div *ngIf="badRequest" class="alert alert-danger" role="alert">Email Existe deja</div>
@@ -39,10 +40,16 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-12 col-md-12">
+                        <div class="col-xl-6 col-lg-12 col-md-12">
                             <div class="form-group">
-                                <label>Your Name</label>
+                                <label>Nom</label>
                                 <input type="text" class="form-control" [(ngModel)]="profile.nom" name="nom">
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-lg-12 col-md-12">
+                            <div class="form-group">
+                                <label>Numero Permis</label>
+                                <input type="text" class="form-control" [(ngModel)]="profile.numPermis" name="numPermis">
                             </div>
                         </div>
 
@@ -75,12 +82,12 @@
                             </div>
                         </div>
 
-                        <div class="col-lg-12 col-md-12">
+                        <div class="col-lg-12 col-md-12" *ngIf="profile.numPermis">
                             <div class="add-listings-box">
                                 <div class="row">
                                     <h3 class="col-6">Liste de voitures</h3>
                                     <a (click)="newCar()" class="btn btn-outline-primary col-6 h-50 m-auto"
-                                        data-bs-toggle="modal" data-bs-target="#loginRegisterModal">Ajouter voiture</a>
+                                        data-bs-toggle="modal" data-bs-target="#addCar">Ajouter voiture</a>
                                 </div>
                                 <app-loading *ngIf="showCarsSpinner"></app-loading>
                                 <table class="table" *ngIf="cars">
@@ -96,8 +103,7 @@
                                             <th scope="row">{{i+1}}</th>
                                             <td>{{car.mat}}</td>
                                             <td><a (click)="getCar(car.mat)" class="btn btn-outline-primary"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#loginRegisterModal">Consulter</a></td>
+                                                    data-bs-toggle="modal" data-bs-target="#editCar">Consulter</a></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -122,6 +128,7 @@
                         <div class="col-lg-12 col-md-12">
                             <div *ngIf="newpass!==confirmpass" class="alert alert-warning" role="alert">Veuillez
                                 verifier les infos entrer</div>
+                                <div class="alert alert-danger" *ngIf="(oldpass+'').length<8">Mot de passe doit être au moins 8 caracteres</div>
                             <div *ngIf="confiramtion==1" class="alert alert-success" role="alert">Mot de passe changer
                                 avec success</div>
                             <div *ngIf="confiramtion==2" class="alert alert-danger" role="alert">Something went wrong
@@ -141,7 +148,7 @@
 
                         <div class="col-lg-12 col-md-12">
                             <div class="form-group">
-                                <label>Confirm New Password</label>
+                                <label>Confirmer New Password</label>
                                 <input type="password" class="form-control" [(ngModel)]="confirmpass"
                                     name="newPassword">
                             </div>
@@ -161,31 +168,33 @@
 
     <div class="flex-grow-1"></div>
 
-    <app-copyrights></app-copyrights>
+    <app-footer-style-two></app-footer-style-two>
 
 </div>
 <!-- End Main Content Wrapper Area -->
 
-<!-- Start Voir Modal -->
+<!-- Start edit Modal -->
 
-<div class="modal fade loginRegisterModal" id="loginRegisterModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade loginRegisterModal" id="editCar" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <app-loading *ngIf="showCarSpinner"></app-loading>
-            <div *ngIf="showAlert" class="alert alert-danger" role="alert">Veuillez verifier les infos entrer</div>
+            <div *ngIf="showError" class="alert alert-danger">{{errorText}}</div>
+            <div *ngIf="showSuccess" class="alert alert-success">{{successText}}</div>
             <div class="tab-content" id="myTabContent" *ngIf="!showCarSpinner">
                 <div class="tab-pane fade show active" id="login" role="tabpanel">
-                    <button type="button" id="close" data-bs-dismiss="modal" aria-label="Close" hidden><i
+                    <button class="close" type="button" id="close" data-bs-dismiss="modal" aria-label="Close"><i
                             class='bx bx-x'></i></button>
                     <div class="vesax-login">
-                        <form>
+                        <form #f="ngForm" (ngSubmit)="modifyCar(car.mat)" ngNativeValidate>
                             <div class="form-group" *ngIf="isNewCar">
                                 <label>Matricule :</label>
                                 <input type="text" class="form-control" [(ngModel)]="car.mat" name="mat" required>
                             </div>
                             <div class="form-group">
                                 <label>Année :</label>
-                                <input type="number" class="form-control" [(ngModel)]="car.annee" name="annee" required>
+                                <input type="number" min="1970" max="2022" class="form-control" [(ngModel)]="car.annee"
+                                    name="annee" required>
                             </div>
                             <div class="form-group">
                                 <label>Categorie :</label>
@@ -204,14 +213,10 @@
                                 <input type="number" min="2" max="10" class="form-control" [(ngModel)]="car.nbrePlace"
                                     name="nbrePlace" required>
                             </div>
-                            <!-- <button type="submit" (click)="modifyCar(car.mat)">Modify Car</button> -->
                             <div class="modal-footer">
-                                <button type="submit" (click)="modifyCar(car.mat)" *ngIf="!isNewCar">Confirmer
-                                    modifications</button>
-                                <button type="button" (click)="deleteCar(car.mat)" *ngIf="!isNewCar"
-                                    style="background-color: red;">Supprimer voiture</button>
-                                <button type="button" (click)="addCar()" *ngIf="isNewCar"
-                                    style="background-color: green;">Ajouter voiture</button>
+                                <button type="submit">Confirmer modifications</button>
+                                <button type="button" style="background-color: red;" data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal">Supprimer voiture</button>
                             </div>
                         </form>
                     </div>
@@ -222,4 +227,84 @@
     </div>
 </div>
 
-<!-- End Voir Modal -->
+<!-- End edit Modal -->
+
+<!-- start add Modal -->
+
+<div class="modal fade loginRegisterModal" id="addCar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <app-loading *ngIf="showCarSpinner"></app-loading>
+            <div *ngIf="showError" class="alert alert-danger">{{errorText}}</div>
+            <div *ngIf="showSuccess" class="alert alert-success">{{successText}}</div>
+            <div class="tab-content" id="myTabContent" *ngIf="!showCarSpinner">
+                <div class="tab-pane fade show active" id="login" role="tabpanel">
+                    <button class="close" type="button" id="close" data-bs-dismiss="modal" aria-label="Close"><i
+                            class='bx bx-x'></i></button>
+                    <div class="vesax-login">
+                        <form ngNativeValidate #f="ngForm" (ngSubmit)="addCar()">
+                            <div class="form-group" *ngIf="isNewCar">
+                                <label>Matricule :</label>
+                                <input type="text" class="form-control" [(ngModel)]="car.mat" name="mat" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Année :</label>
+                                <input type="number" min="1970" max="2022" class="form-control" [(ngModel)]="car.annee"
+                                    name="annee" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Categorie :</label>
+                                <select [(ngModel)]="car.cat" name="cat" class="form-control" required>
+                                    <option value="SEDAN">Sedan</option>
+                                    <option value="SUV">SUV</option>
+                                    <option value="Minivan">Minivan</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Color : </label>
+                                <input type="color" class="form-control" [(ngModel)]="car.color" name="color" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Places : </label>
+                                <input type="number" min="2" max="10" class="form-control" [(ngModel)]="car.nbrePlace"
+                                    name="nbrePlace" required>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" style="background-color: green;">Ajouter voiture</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End add Modal -->
+
+<!-- Strat Sup Modal -->
+<div class="modal fade loginRegisterModal" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="tab-content" id="myTabContent" style="margin-top: 5px;">
+                <div class="tab-pane fade show active" id="login" role="tabpanel">
+                    <button type="button" id="close" data-bs-dismiss="modal" aria-label="Close" class="close"><i
+                            class='bx bx-x'></i></button>
+                    <div class="vesax-login">
+                        <h3>Voullez vous supprimer cette voiture ?</h3>
+                        <div class="row justify-content-end">
+                            <div class="col-4">
+                                <button class="btn btn-danger" data-bs-dismiss="modal"
+                                    aria-label="Close">Annuler</button>
+                            </div>
+                            <div class="col-7">
+                                <button class="btn btn-success" (click)="deleteCar(car.mat)">Confirmer la suppression</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

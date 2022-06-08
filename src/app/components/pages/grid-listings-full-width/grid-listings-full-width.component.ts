@@ -1,5 +1,9 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
 import { OwlOptions } from 'ngx-owl-carousel-o';
+import { AuthService } from 'src/app/services/auth-service.service';
 
 @Component({
     selector: 'app-grid-listings-full-width',
@@ -8,17 +12,46 @@ import { OwlOptions } from 'ngx-owl-carousel-o';
 })
 export class GridListingsFullWidthComponent implements OnInit {
 
-    constructor() { }
-
-    ngOnInit(): void {
-        this.resetOption = [this.options[0]];
+    constructor(private http: HttpClient, private active: ActivatedRoute, public service: AuthService,
+        public sanitizer: DomSanitizer, private router: Router) {
+        this.villeA = this.active.snapshot.params["villeA"];
+        this.villeD = this.active.snapshot.params["villeD"];
+        this.Dt = this.active.snapshot.params["date"];
     }
 
-    pageTitleContent = [
-        {
-            title: 'Find Popular Places'
-        }
-    ]
+    public options = [];
+    public options2 = [];
+    public trajets: any = [];
+    public villeD: "";
+    villeA = "";
+    public Dt: "";
+    showSpinner = true;
+
+    ngOnInit(): void {
+        this.http.get('https://morocco-test-1.herokuapp.com/regions/search/ville?ville=').subscribe(
+            data => {
+                this.options = data['_embedded'].villes;
+                this.options2 = this.options;
+            }
+        )
+        this.active.params.subscribe(
+            res => {
+                this.showSpinner = true;
+                let data = {
+                    "villeA": this.villeA,
+                    "villeD": this.villeD,
+                    "date": this.Dt
+                }
+                this.http.post(this.service.host + "/all/gettrajets", data).subscribe(
+                    res => {
+                        this.trajets = res;
+                        this.showSpinner = false;
+                    }
+                )
+            }
+        )
+    }
+
 
     // Category Select
     singleSelect: any = [];
@@ -27,396 +60,46 @@ export class GridListingsFullWidthComponent implements OnInit {
     objectsArray: any = [];
     resetOption: any;
     config = {
-        displayKey: "name",
-        search: true
+        displayKey: "ville",
+        placeholder: "Ville d'arrive",
+        search: true,
+        moreText: 'Plus',
+        noResultsFound: 'Ville Introuvable!',
+        searchPlaceholder: 'Chercher'
     };
-    options = [
-        // Type here your category name
-        {
-            name: "Restaurants",
-        },
-        {
-            name: "Events",
-        },
-        {
-            name: "Clothing",
-        },
-        {
-            name: "Bank",
-        },
-        {
-            name: "Fitness",
-        },
-        {
-            name: "Bookstore",
-        }
-    ];
-    searchChange($event) {
-        console.log($event);
+    config1 = {
+        displayKey: "ville",
+        placeholder: "Ville de depart",
+        search: true,
+        moreText: 'Plus',
+        noResultsFound: 'Ville Introuvable!',
+        searchPlaceholder: 'Chercher'
+    };
+
+
+    selectionChanged1($event) {
+        this.villeD = $event.value.ville;
+        this.options = this.options2;
+        this.options = this.options.filter(el => el.ville != this.villeD);
+    }
+    selectionChanged2($event) {
+        this.villeA = $event.value.ville;
+        console.log(this.villeA);
+    }
+    selectionChanged3($event) {
+        console.log($event.target.value);
     }
     reset() {
         this.resetOption = [];
     }
-    // Ordering Select
-    options2 = [
-        {
-            name: "Recommended",
-        },
-        {
-            name: "Default",
-        },
-        {
-            name: "Popularity",
-        },
-        {
-            name: "Latest",
-        },
-        {
-            name: "Price: low to high",
-        },
-        {
-            name: "Price: high to low",
-        }
-    ];
-    // Distance Select
-    options3 = [
-        {
-            name: "Driving (5 mi.)",
-        },
-        {
-            name: "Walking (1 mi.)",
-        },
-        {
-            name: "Biking (2 mi.)",
-        },
-        {
-            name: "Within 4 blocks",
-        },
-        {
-            name: "Bicycle (6 mi.)",
-        }
-    ];
 
-    // All Listings
-    singleListingsBox = [
-        {
-            mainImg: [
-                {
-                    img: 'assets/img/listings/listings1.jpg'
-                }
-            ],
-            categoryLink: 'single-listings',
-            bookmarkLink: 'single-listings',
-            detailsLink: 'single-listings',
-            category: 'Restaurant',
-            location: 'New York, USA',
-            title: 'Chipotle Mexican Grill',
-            price: 'Start From: $150',
-            authorImg: 'assets/img/user1.jpg',
-            authorName: 'Taylor',
-            openORclose: 'Open Now',
-            extraClass: 'status-open',
-            rating: [
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                }
-            ],
-            ratingCount: '45'
-        },
-        {
-            mainImg: [
-                {
-                    img: 'assets/img/listings/listings2.jpg'
-                },
-                {
-                    img: 'assets/img/listings/listings4.jpg'
-                }
-            ],
-            categoryLink: 'single-listings',
-            bookmarkLink: 'single-listings',
-            detailsLink: 'single-listings',
-            category: 'Hotel',
-            location: 'Los Angeles, USA',
-            title: 'The Beverly Hills Hotel',
-            price: 'Start From: $200',
-            openORclose: 'Open Now',
-            extraClass: 'status-open',
-            authorImg: 'assets/img/user2.jpg',
-            authorName: 'Sarah',
-            rating: [
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bx-star'
-                }
-            ],
-            ratingCount: '10'
-        },
-        {
-            mainImg: [
-                {
-                    img: 'assets/img/listings/listings3.jpg'
-                }
-            ],
-            categoryLink: 'single-listings',
-            bookmarkLink: 'single-listings',
-            detailsLink: 'single-listings',
-            category: 'Shopping',
-            location: 'Bangkok, Thailand',
-            title: 'Central Shopping Center',
-            price: 'Start From: $110',
-            openORclose: 'Close Now',
-            extraClass: 'status-close',
-            authorImg: 'assets/img/user3.jpg',
-            authorName: 'James',
-            rating: [
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star-half'
-                }
-            ],
-            ratingCount: '35'
-        },
-        {
-            mainImg: [
-                {
-                    img: 'assets/img/listings/listings5.jpg'
-                },
-                {
-                    img: 'assets/img/listings/listings6.jpg'
-                }
-            ],
-            categoryLink: 'single-listings',
-            bookmarkLink: 'single-listings',
-            detailsLink: 'single-listings',
-            category: 'Beauty',
-            location: 'Suwanee, USA',
-            title: 'Vesax Beauty Center',
-            price: 'Start From: $100',
-            openORclose: 'Open Now',
-            extraClass: 'status-open',
-            authorImg: 'assets/img/user4.jpg',
-            authorName: 'Andy',
-            rating: [
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bx-star'
-                },
-                {
-                    icon: 'bx bx-star'
-                }
-            ],
-            ratingCount: '15'
-        },
-        {
-            mainImg: [
-                {
-                    img: 'assets/img/listings/listings7.jpg'
-                }
-            ],
-            categoryLink: 'single-listings',
-            bookmarkLink: 'single-listings',
-            detailsLink: 'single-listings',
-            category: 'Restaurant',
-            location: 'Francisco, USA',
-            title: 'The Mad Made Grill',
-            price: 'Start From: $121',
-            openORclose: 'Open Now',
-            extraClass: 'status-open',
-            authorName: 'James',
-            authorImg: 'assets/img/user3.jpg',
-            rating: [
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bx-star'
-                },
-                {
-                    icon: 'bx bx-star'
-                }
-            ],
-            ratingCount: '18'
-        },
-        {
-            mainImg: [
-                {
-                    img: 'assets/img/listings/listings4.jpg'
-                },
-                {
-                    img: 'assets/img/listings/listings2.jpg'
-                }
-            ],
-            categoryLink: 'single-listings',
-            bookmarkLink: 'single-listings',
-            detailsLink: 'single-listings',
-            category: 'Hotel',
-            location: 'Los Angeles, USA',
-            title: 'The Beverly Hills Hotel',
-            price: 'Start From: $200',
-            openORclose: 'Open Now',
-            extraClass: 'status-open',
-            authorImg: 'assets/img/user2.jpg',
-            authorName: 'Sarah',
-            rating: [
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bx-star'
-                },
-                {
-                    icon: 'bx bx-star'
-                }
-            ],
-            ratingCount: '10'
-        },
-        {
-            mainImg: [
-                {
-                    img: 'assets/img/listings/listings13.jpg'
-                }
-            ],
-            categoryLink: 'single-listings',
-            bookmarkLink: 'single-listings',
-            detailsLink: 'single-listings',
-            category: 'Fitness',
-            location: 'Bangkok, Thailand',
-            title: 'Power House Gym',
-            price: 'Start From: $110',
-            openORclose: 'Open Now',
-            extraClass: 'status-open',
-            authorImg: 'assets/img/user3.jpg',
-            authorName: 'James',
-            rating: [
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bx-star'
-                },
-                {
-                    icon: 'bx bx-star'
-                }
-            ],
-            ratingCount: '35'
-        },
-        {
-            mainImg: [
-                {
-                    img: 'assets/img/listings/listings14.jpg'
-                },
-                {
-                    img: 'assets/img/listings/listings15.jpg'
-                }
-            ],
-            categoryLink: 'single-listings',
-            bookmarkLink: 'single-listings',
-            detailsLink: 'single-listings',
-            category: 'Beauty',
-            location: 'Suwanee, USA',
-            title: 'Divine Beauty Parlour & Spa',
-            price: 'Start From: $100',
-            openORclose: 'Open Now',
-            extraClass: 'status-open',
-            authorImg: 'assets/img/user4.jpg',
-            authorName: 'Andy',
-            rating: [
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bxs-star'
-                },
-                {
-                    icon: 'bx bx-star'
-                },
-                {
-                    icon: 'bx bx-star'
-                }
-            ],
-            ratingCount: '15'
+    onSearch(data: any) {
+        if (this.villeA == "" || this.villeD == "" || this.Dt == undefined) {
+            return false;
         }
-    ]
-
-    gridListings: number = 1;
-
-    customOptions: OwlOptions = {
-		loop: true,
-		nav: true,
-		dots: false,
-		animateOut: 'fadeOut',
-		animateIn: 'fadeIn',
-		autoplayHoverPause: true,
-		autoplay: true,
-		mouseDrag: false,
-		items: 1,
-        navText: [
-            "<i class='flaticon-left-chevron'></i>",
-            "<i class='flaticon-right-chevron'></i>"
-        ]
+        else {
+            this.router.navigateByUrl("/recherche;villeD=" + this.villeD + ";villeA=" + this.villeA + ";date=" + this.Dt);
+        }
     }
 
 }

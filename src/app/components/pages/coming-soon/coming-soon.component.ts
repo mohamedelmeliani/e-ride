@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth-service.service';
 
 @Component({
@@ -18,14 +19,14 @@ export class ComingSoonComponent implements OnInit {
     showErrorCode = false;
     showSpinner = false;
 
-    constructor(private http: HttpClient, private service: AuthService) { }
+    constructor(private http: HttpClient, private service: AuthService, private router: Router) { }
 
     ngOnInit() {
 
     }
 
     emailSent() {
-        if (this.email != ""&&this.isEmail(this.email)) {
+        if (this.email != "" && this.isEmail(this.email)) {
             this.showSpinner = true;
             this.http.get(this.service.host + "/all/demandeConfirmation/" + this.email).subscribe(
                 res => {
@@ -48,21 +49,26 @@ export class ComingSoonComponent implements OnInit {
     }
 
     verifyCode() {
-        if (this.email != "" && this.code != ""&&this.isEmail(this.email)&&this.code.length==6) {
+        this.showErrorEmail = false;
+        this.textErrorEmail = "";
+        this.textErrorCode = "";
+        this.showErrorCode = false;
+        this.showSpinner = false;
+        if (this.email != "" && this.code != "" && this.isEmail(this.email) && (this.code+'').length == 6) {
             this.showSpinner = true;
-            this.http.get(this.service.host + "/all/verifyConfirmation/" + this.email+"?code="+this.code).subscribe(
+            this.http.get(this.service.host + "/all/verifyConfirmation/" + this.email + "?code=" + this.code).subscribe(
                 res => {
-                    this.showCode = true;
-                    this.showErrorEmail = false;
-                    this.showSpinner = false;
+                    let encodedemail = btoa(this.email);
+                    let encodedCode = btoa(this.code.toString());
+                    this.router.navigateByUrl("/ResetPassword/" + encodedemail + "/" + encodedCode);
                 }, err => {
                     this.showErrorEmail = true;
                     this.textErrorEmail = "Veuillez verifier votre Email ou votre code";
                     this.showSpinner = false;
                 }
             )
-        } 
-        else if (this.code.length!=6) {
+        }
+        else if ((this.code+'').length != 6) {
             this.showErrorCode = true;
             this.textErrorCode = "Code invalid";
         }

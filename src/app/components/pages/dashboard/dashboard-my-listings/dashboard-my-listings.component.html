@@ -17,44 +17,43 @@
     <!-- End Breadcrumb Area -->
 
     <!-- Start -->
-    <section class="listing-area">
+    <app-loading *ngIf="showSpinner"></app-loading>
+    <section class="listing-area" *ngIf="!showSpinner">
         <div class="row">
-            <div class="col-xl-4 col-lg-6 col-md-6" *ngFor="let Content of singleListingsBox | paginate: { itemsPerPage: 6, currentPage: gridListings }">
+            <div class="col-xl-4 col-lg-6 col-md-6"
+                *ngFor="let trajet of trajets | paginate: { itemsPerPage: 6, currentPage: gridListings }">
                 <div class="single-listings-box">
-                    <div class="listings-image">
-                        <div class="listings-image-slides">
-                            <owl-carousel-o [options]="customOptions">
-                                <ng-template carouselSlide *ngFor="let Image of Content.mainImg;">
-                                    <div class="single-image">
-                                        <img [src]="Image.img" alt="image">
-                                        <a routerLink="/{{Content.detailsLink}}" class="link-btn"></a>
-                                    </div>
-                                </ng-template>
-                            </owl-carousel-o>
-                        </div>
-                    </div>
                     <div class="listings-content">
-                        <ul class="listings-meta">
-                            <li><i class="flaticon-pin"></i> {{Content.villeDepart}}</li>
-                            <li> ---> </li>
-                            <li><i class="flaticon-pin"></i> {{Content.villeArrivee}}</li>
-                        </ul>
-                        <h3><a routerLink="/{{Content.detailsLink}}"><i class="flaticon-pin"></i> {{Content.villeDepart}} à <i class="flaticon-pin"></i> {{Content.villeArrivee}}</a></h3>
-                        <span class="status {{Content.extraClass}}"><i class="flaticon-save"></i> {{Content.openORclose}}</span>
+                        <h3><a [routerLink]="['/trajet',trajet.id]" routerLinkActive="router-link-active"><i
+                                    class="flaticon-pin" style="color:#0ec6c6; font-size: 17px;"></i>{{trajet.villeD}}
+                                <i class="flaticon-right-arrow s2" style="color:#0ec6c6;"></i><i class="flaticon-pin"
+                                    style="color:#0ec6c6;font-size: 17px;"></i>{{trajet.villeA}}</a></h3>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="price">
+                                {{trajet.date}}
+                            </div>
+                            <div>
+                                <span class="status Open Now">
+                                    <i class="flaticon-clock" style="font-size: 17px;"></i>
+                                    {{trajet.heure}}</span>
+                            </div>
+                        </div>
                         <div class="d-flex align-items-center justify-content-between">
                             <div class="rating">
-                                <i class='{{Star.icon}}' *ngFor="let Star of Content.rating;"></i>
-                                <span class="count">({{Content.ratingCount}})</span>
+                                <!-- <i class='{{Star.icon}}' *ngFor="let Star of Content.rating;"></i> -->
+                                <span class="count">{{trajet.nbrePlace}} Places</span>
                             </div>
                             <div class="price">
-                                {{Content.price}}
+                                Start From: $ {{trajet.prix}}
                             </div>
                         </div>
                     </div>
                     <div class="listings-footer">
                         <div class="d-flex justify-content-between align-items-center">
-                            <a routerLink="/" class="default-btn">Edit</a>
-                            <a routerLink="/" class="default-btn">Delete</a>
+                            <a (click)="getTrajet(trajet.id)" data-bs-toggle="modal"
+                                data-bs-target="#loginRegisterModal" class="default-btn">Modifier</a>
+                            <a data-bs-toggle="modal" (click)="passId(trajet.id)" data-bs-target="#deleteModal"
+                                class="default-btn">Supprimer</a>
                         </div>
                     </div>
                 </div>
@@ -70,8 +69,135 @@
     <!-- End -->
 
     <div class="flex-grow-1"></div>
-    
-    <app-copyrights></app-copyrights>
+
+    <app-footer-style-two></app-footer-style-two>
 
 </div>
 <!-- End Main Content Wrapper Area -->
+
+<!-- Start Modification Modal -->
+
+<div class="modal fade loginRegisterModal" id="loginRegisterModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <app-loading *ngIf="showModalSpinner"></app-loading>
+            <div *ngIf="!showModalSpinner" class="tab-content" id="myTabContent" style="margin-top: 5px;">
+                <div class="alert alert-danger" *ngIf="showError">{{errorText}}</div>
+                <div class="alert alert-success" *ngIf="showSuccess">Bien Modifié</div>
+                <div class="tab-pane fade show active" id="login" role="tabpanel">
+                    <button type="button" id="close" data-bs-dismiss="modal" aria-label="Close" class="close"><i
+                            class='bx bx-x'></i></button>
+                    <div class="vesax-login">
+                        <form #f="ngForm" ngNativeValidate (ngSubmit)="onSearch(f.value)">
+                            <div class="form-group">
+                                <label>Ville Depart :</label>
+                                <input type="text" class="form-control" [(ngModel)]="trajet.villeD" name="villeD"
+                                    readonly>
+                            </div>
+                            <div *ngIf="trajet.villeD!=''">
+                                <div class="form-group">
+                                    <label>Ville Arrive :</label>
+                                    <input type="text" class="form-control" [(ngModel)]="trajet.villeA" name="villeA"
+                                        readonly>
+                                </div>
+                                <div *ngIf="trajet.villeA!=''">
+                                    <div class="form-group">
+                                        <label>Date :</label>
+                                        <input type="date" class="form-control" [(ngModel)]="trajet.date" name="date"
+                                            readonly>
+                                    </div>
+                                    <div *ngIf="trajet.date!=''">
+                                        <div class="form-group">
+                                            <label>Heure : </label>
+                                            <input type="time" class="form-control" [(ngModel)]="trajet.heure"
+                                                name="heure" required>
+                                        </div>
+                                        <div *ngIf="trajet.heure!=''">
+                                            <div class="form-group">
+                                                <label>Voiture : </label>
+                                                <ngx-select-dropdown tabindex="0" [multiple]="false"
+                                                    (change)="selectionChanged3($event)" [(ngModel)]="trajet.car"
+                                                    name="car" [config]="config" [options]="cars">
+                                                </ngx-select-dropdown>
+                                            </div>
+                                            <div *ngIf="trajet.car">
+                                                <div class="form-group">
+                                                    <label>Places : </label>
+                                                    <input id="nbrePlace" type="number" min="1" class="form-control"
+                                                        [(ngModel)]="trajet.nbrePlace" name="nbrePlace" required
+                                                        (change)="getDistance()" *ngIf="trajet.car&&!hasAssistes">
+                                                    <input id="nbrePlace" type="number" min="1" class="form-control"
+                                                        [(ngModel)]="trajet.nbrePlace" name="nbrePlace" readonly
+                                                        *ngIf="trajet.car&&hasAssistes">
+                                                </div>
+                                                <div *ngIf="trajet.nbrePlace!=''||trajet.nbrePlace!='0'">
+                                                    <div class="form-group">
+                                                        <label>Prix par place : </label>
+                                                        <input id="prix" type="number" class="form-control"
+                                                            [(ngModel)]="trajet.prix" name="prix" min="0" required>
+                                                    </div>
+                                                    <div *ngIf="trajet.prix!=''||trajet.prix!='-1'">
+                                                        <div class="add-listings-box">
+                                                            <div class="form-group">
+                                                                <div class="sidebar-widgets">
+                                                                    <div class="box">
+                                                                        <span class="title">Allez-vous emprunter
+                                                                            l'autoroute ?</span>
+                                                                        <label class="switch">
+                                                                            <input type="checkbox"
+                                                                                [(ngModel)]="trajet.highway"
+                                                                                name="highway">
+                                                                            <span></span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-success">Confirmer
+                                                            Trajet</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- End Modification Modal -->
+
+<!-- Strat Sup Modal -->
+<div class="modal fade loginRegisterModal" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="tab-content" id="myTabContent" style="margin-top: 5px;">
+                <div class="tab-pane fade show active" id="login" role="tabpanel">
+                    <button type="button" id="close" data-bs-dismiss="modal" aria-label="Close" class="close"><i
+                            class='bx bx-x'></i></button>
+                    <div class="vesax-login">
+                        <h3>Voullez vous supprimer ce trajet ?</h3>
+                        <div class="row justify-content-end">
+                            <div class="col-4">
+                                <button class="btn btn-danger" data-bs-dismiss="modal"
+                                    aria-label="Close">Annuler</button>
+                            </div>
+                            <div class="col-7">
+                                <button class="btn btn-success" (click)="deleteTrajet()">Confirmer la
+                                    suppression</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

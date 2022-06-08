@@ -4,7 +4,7 @@
         <div class="container">
             <div class="vesax-responsive-menu">
                 <div class="logo">
-                    <a routerLink="/"><img src="assets/img/logo-removebg-preview (1).png" alt="logo"></a>
+                    <a routerLink="/"><img src="assets/img/logo-removebg-preview (1).png" style="height: 80px;" alt="logo"></a>
                 </div>
             </div>
         </div>
@@ -14,7 +14,7 @@
         <div class="container-fluid">
             <nav class="navbar navbar-expand-md navbar-light">
                 <a class="navbar-brand" routerLink="/"><img src="assets/img/logo-removebg-preview (1).png"
-                        alt="logo"></a>
+                        alt="logo" style="height: 80px;"></a>
 
                 <div class="collapse navbar-collapse">
 
@@ -172,6 +172,7 @@
                                     (change)='password=$event.target.value' [value]="password">
                             </div>
                             <button type="submit" (click)="Authenticate()">Se connecter</button>
+                            <a routerLink="/passwordForgettenVerification">Mot de passe oublié ?</a>
                         </form>
                     </div>
                 </div>
@@ -181,6 +182,7 @@
                         <span class="sub-title" (click)="showAlert=false"><span>S'inscrire</span></span>
                         <div *ngIf="registration.password!==confirmpass" class="alert alert-warning" role="alert">
                             Veuillez vérifier les mots de passe saisis</div>
+                            <div class="alert alert-danger" *ngIf="(registration.password+'').length<8">Mot de passe doit être au moins 8 caracteres</div>
                         <div *ngIf="showAlert" class="alert alert-warning" role="alert">Certaines des informations
                             saisies ne sont pas valides</div>
                         <div *ngIf="badRequest" class="alert alert-warning" role="alert">Email Existe deja</div>

@@ -45,10 +45,10 @@ const routes: Routes = [
     { path: 'recherche', component: GridListingsFullWidthComponent },
     { path: 'trajet/:id', component: ListingsDetailsComponent },
     { path: 'dashboard', component: DashboardComponent },
-    { path: 'dashboard-bookings', component: DashboardBookingsComponent },
-    { path: 'dashboard-my-profile', component: DashboardMyProfileComponent },
+    { path: 'historique', component: DashboardBookingsComponent },
+    { path: 'profile', component: DashboardMyProfileComponent },
     { path: 'dashboard-add-listings', component: DashboardAddListingsComponent },
-    { path: 'dashboard-my-listings', component: DashboardMyListingsComponent },
+    { path: 'trajets', component: DashboardMyListingsComponent },
     // Here add new pages component
 
     { path: '**', component: NotFoundComponent } // This line will remain down from the whole pages component list

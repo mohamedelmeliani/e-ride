@@ -14,24 +14,23 @@ export class HowItWorksComponent implements OnInit {
 
     sectionTitle = [
         {
-            title: 'How It Works',
-            paragraph: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis ipsum suspendisse ultrices gravida. Risus commodo viverra.'
+            title: 'Comment ça fonctionne',
         }
     ]
     howItWorksBox = [
         {
             icon: 'flaticon-placeholder',
-            title: 'Find Interesting Place',
+            title: 'Trouver Trajet Intéressant',
             paragraph: 'Quis ipsum suspendisse ultrices gravida. Risus commodo viverra maecenas accumsan lacus vel facilisis.'
         },
         {
             icon: 'flaticon-support-1',
-            title: 'Contact a Few Owners',
+            title: 'Envoyer Demande',
             paragraph: 'Quis ipsum suspendisse ultrices gravida. Risus commodo viverra maecenas accumsan lacus vel facilisis.'
         },
         {
             icon: 'flaticon-tick',
-            title: 'Make a Reservation',
+            title: 'Obtenir réponse du propriétaire',
             paragraph: 'Quis ipsum suspendisse ultrices gravida. Risus commodo viverra maecenas accumsan lacus vel facilisis.'
         }
     ]
